@@ -764,3 +764,27 @@ void vtkBoundingBox::ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, 
     worker(pts->GetData(), ptUses, bounds);
   }
 }
+
+void vtkBoundingBox::ComputeLocalBounds(vtkPoints* points, double u[3], double v[3], double w[3], double outputBounds[6])
+{
+  for (int i = 0; i < 6; i++)
+  {
+    outputBounds[i] = i % 2 == 0 ? VTK_DOUBLE_MAX : VTK_DOUBLE_MIN;
+  }
+
+  for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
+  {
+    double* point = points->GetPoint(i);
+    double du = vtkMath::Dot(point, u);
+    outputBounds[0] = vtkMath::Min<double>(du, outputBounds[0]);
+    outputBounds[1] = vtkMath::Max<double>(du, outputBounds[1]);
+
+    double dv = vtkMath::Dot(point, v);
+    outputBounds[2] = vtkMath::Min<double>(dv, outputBounds[2]);
+    outputBounds[3] = vtkMath::Max<double>(dv, outputBounds[3]);
+
+    double dw = vtkMath::Dot(point, w);
+    outputBounds[4] = vtkMath::Min<double>(dw, outputBounds[4]);
+    outputBounds[5] = vtkMath::Max<double>(dw, outputBounds[5]);
+  }
+}
